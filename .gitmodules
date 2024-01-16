@@ -1,0 +1,3 @@
+[submodule "FE-ElectraTech"]
+	path = FE-ElectraTech
+	url = https://github.com/ElectraTech/ElectraTech.git
