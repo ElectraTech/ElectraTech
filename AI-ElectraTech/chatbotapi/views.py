@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 from openai import OpenAI
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 example_json2 = {
 "times_stop" : [
@@ -26,8 +26,10 @@ example_json2 = {
 }
 
 example_json = {
+   
   "times_stop": 
     {
+        
       "1": {
         "day_of_week": "Monday",
         "devices": [
@@ -54,9 +56,11 @@ cred = credentials.Certificate('electratech-87423-firebase-adminsdk-zvtt5-d61079
 firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://electratech-87423-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
-def get_data():
+def get_data(outlet_name):
     # Get a database reference
-    ref = db.reference('PowerProviders/thanhvjp/socket/ElectricAmount')
+    
+    print(outlet_name)
+    ref = db.reference(f'PowerProviders/{outlet_name}/ElectricAmount')
 
     # Read the data
     return ref.get()
@@ -94,8 +98,9 @@ def chatbot(request):
         return Response({"message": "Hello"})
 
     if request.method == 'POST':
-        #time = request.data.get('time', '')
-        time2 = get_data()
+        outlet_name = request.data.get('outlet_name', '')
+        print(outlet_name)
+        time2 = get_data(outlet_name)
         print(time2)
         time = json.dumps(time2)
         print(time)
@@ -110,8 +115,11 @@ def chatbot(request):
             Convert date to day_of_week. 
              Provide result in the JSON format."""
             json_data = generate_suggestions(prompt)
+            jsonName = outlet_name
+            print (jsonName)
             #https://electratech-87423.firebaseio.com/PowerProviders/thanhvjp/.json
-            requests.put(url="https://electratech-87423-default-rtdb.asia-southeast1.firebasedatabase.app/Test/data.json", json= json_data)
+            if  jsonName != "":
+              requests.put(url=f"https://electratech-87423-default-rtdb.asia-southeast1.firebasedatabase.app/Recommend/{jsonName}.json", json= json_data)
             # json_data = generate_suggestions(prompt)
              
             return Response("json_data")
