@@ -12,7 +12,7 @@ logger = logging.getLogger()
 
 from openai import OpenAI
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 example_json2 = {
 "times_stop" : [
@@ -33,17 +33,17 @@ example_json = {
       "1": {
         "day_of_week": "Monday",
         "devices": [
-          {"device_id": 1, "time_stop": ["1h-2h", "2h-5h", "8h-9h"]},
-          {"device_id": 2, "time_stop": ["1h-2h", "2h-8h", "10h-24h"]},
-          {"device_id": 3, "time_stop": ["0h-24h"]}
+          {"device_id": 1, "time_stop": ["1h22-2h30", "2h45-5h50", "8h45-9h45"]},
+          {"device_id": 2, "time_stop": ["1h00-2h00", "2h24-8h59", "10h15-24h00"]},
+          {"device_id": 3, "time_stop": ["0h00-24h00"]}
         ]
       },
       "2": {
         "day_of_week": "Tuesday",
         "devices": [
-          {"device_id": 1, "time_stop": ["1h-2h", "2h-5h", "8h-9h"]},
-          {"device_id": 2, "time_stop": ["1h-2h", "2h-8h", "10h-24h"]},
-          {"device_id": 3, "time_stop": ["0h-24h"]}
+          {"device_id": 1, "time_stop": ["1h20-2h50", "3h01-5h00", "8h12-9h12"]},
+          {"device_id": 2, "time_stop": ["1h32-2h45", "2h50-8h45", "10h00-24h00"]},
+          {"device_id": 3, "time_stop": ["0h23-24h00"]}
         ]
       }
     }
@@ -72,7 +72,7 @@ def generate_suggestions(prompt):
   model="gpt-3.5-turbo-1106",
   response_format={ "type": "json_object" },
   messages=[
-    {"role": "system", "content": "You are a helpful assistant, Provide valid JSON output.The Data input schema : {'date': {time_use: device_id, kwh}} similar this '17-1-2024': {'0h-1h': '1, 1.4kWh 2, 0.5kWh 3, 0.6kWh', '1h-2h': '1, 0.1kWh 2, 0.2kWh 3, 0kWh'}  . The return data schema should be like this example:"+ json.dumps(example_json)},
+    {"role": "system", "content": "You are a helpful assistant, Provide valid JSON output.The Data input schema : {'date': {time_use: device_id, kwh, timeStartDetail - timeEndDetail}} similar this '17-1-2024': {'0h-1h': '1,1.4kWh,0h10-1h00  2,0.5kWh,0h01-0h59 3,0.6kWh,0h11-1h00', '1h-2h': '1,0.1kWh,1h05-1h50 2,0.2kWh,1h15-1h45 3,0kWh'}  . The return data schema should be like this example:"+ json.dumps(example_json)},
     {"role": "user", "content": prompt}
   ]
 )
@@ -108,8 +108,8 @@ def chatbot(request):
         if time:
             
             
-            prompt = time+ """Divide 24h into 23 part (from 0h to 24h).time_stop is the time to turn off electricity for each devices (Important - combine the time if it continuous).
-            devices is the list of devices. device_id is the id of device. time use is the time to use electricity for each devices. kwh is the amount of electricity used for each devices.
+            prompt = time+ """Divide 24h into 23 part (from 0h00 to 24h00).time_stop is the time in miniute detail to turn off electricity for each devices (Important - combine the time if it continuous).
+            devices is the list of devices. device_id is the id of device. time use is the time to use electricity for each devices.time start detail is the time start to use electricity for each devices, time end detail is the time to use electricity for each devices.kwh is the amount of electricity used for each devices.
             what times to turn off electricity for each devices.Do it for all day of the week from monday to sunday.
             Important: Reccommend ALL possible as many as you can times from 0h to 24h to turn off electricity devices for each devices(kwh too low).
             Convert date to day_of_week. 
