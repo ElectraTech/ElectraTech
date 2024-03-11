@@ -14,14 +14,7 @@ float power1 = 0;
 float power2 = 0;
 float power3 = 0;
 
-int pro1 = 9;
-int pro2 = 8;
-int pro3 = 10;
-
 String stringTransferredToEsp = "";
-String dataStatusFromEsp = "";
-char currentStatus;
-
 
 void setup() {
   Wire.begin(8);                /* join i2c bus with address 8 */
@@ -38,10 +31,9 @@ void setup() {
 }
 
 void loop() {
-  delay(100);
   power1 = calculateTheAmpere(sensor1);
-  power2 = calculateTheAmpere(sensor3);
-  power3 = calculateTheAmpere(sensor2);
+  power2 = calculateTheAmpere(sensor2);
+  power3 = calculateTheAmpere(sensor3);
 
   stringTransferredToEsp = String("1,") + String(power1)
   + String("k2,") + String(power2)
@@ -50,17 +42,13 @@ void loop() {
   Serial.println(stringTransferredToEsp);
 }
 
-
-
-// function that executes whenever data is requested from master
 void requestEvent() {
   uint8_t data[26];
-  // uint8_t datas = data[0].write;
   stringTransferredToEsp.getBytes(data, 26);
 
   for(int i = 0; i < 26; i++) {
     Wire.write(data[i]);
-  }  /* sends hello slave string */
+  } 
 }
 
 float calculateTheAmpere(ACS712 parameterSensor) {
